@@ -11,20 +11,30 @@ things, it might take some time for a network admin to know what actually goes u
 
 The easiest way to install wireguard is using [algo](https://github.com/trailofbits/algo), a set of Ansible scripts that simplify the setup of a 
 personal WireGuard and IPsec VPN. It's a great and simple way to setup wireguard for a number of users, but the only trouble is key rotation and lack 
-of 2FA. This project is aimed at provisioning and key management for enterprises simple and tied to their Identity provider system. 
+of 2FA. 
 
+This project is aimed at provisioning and key management for enterprises simple and tied to their Identity provider system. 
 Okta will be integrated first and the learnings from builing that will be used to create a generic system with integration to multiple OIDC providers. 
 
 
 # High Level Requirements
 
-- Provide webhooks/api endpoints to add and remove wireguard user accounts automatically based on Okta events
-- Provide means to authenticate via okta and refresh the certificate once every day
+- Periodically sync wireguard peers and okta users, using either
+  - event webhooks
+  - cronjobs
+- Provide means to authenticate via okta and download the new certificate once every day for users
+
+Both webhooks and cronjobs have their prons and cons. Cronjobs have a lesser attach surface and is more robust. Hence we'll use
+that approach first. 
+
+# Configuration 
+
+Configurations 
 
 # Inspirations
 
 Would like to thank contributors of below open source projects, who has travelled before me in this path
 
+- [wireguard-go](https://github.com/WireGuard/wireguard-go)
 - [tailscale](https://tailscale.com/) 
 - [wired-vpn](https://github.com/jbauers/wired-vpn)
-- 
