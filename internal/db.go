@@ -1,21 +1,26 @@
-package dbutils
+package internal
 
 import (
-	"database/sql"
-	_ "github.com/mattn/go-sqlite3"
-	"log"
+"database/sql"
+_ "github.com/mattn/go-sqlite3"
+"log"
 )
 
 const (
 	DBFILE = "./wgokta.db"
 )
 
-func CreateSchema()  {
+func CreateDBSchema() error {
 	db, err := sql.Open("sqlite3", DBFILE)
 	if err != nil {
 		log.Println("Error opening DB", err)
 	}
-	defer db.Close()
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+			return
+		}
+	}(db)
 	sqlStmt := `
 	create table if not exists user (
 	email text not null ,
@@ -26,7 +31,9 @@ func CreateSchema()  {
 	_, err = db.Exec(sqlStmt)
 	if err != nil {
 		log.Printf("%q: %s\n", err, sqlStmt)
+		return err
 	}
+	return nil
 }
 
 // GetUsedIPs returns the list of ip addresses as strings currently being in use.

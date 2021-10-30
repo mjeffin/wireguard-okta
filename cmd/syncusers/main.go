@@ -2,23 +2,27 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"mjeffn/wireguard-okta/internal"
 	"mjeffn/wireguard-okta/pkg/conf"
-	"mjeffn/wireguard-okta/pkg/dbutils"
-	"mjeffn/wireguard-okta/pkg/okta"
-	"mjeffn/wireguard-okta/pkg/wg"
 )
 
 func main()  {
 	conf.LoadEnvFile()
-	//wg.GetWgCIDR()
-	dbutils.CreateSchema()
-	usedIPs := dbutils.GetUsedIPs()
-	fmt.Println(usedIPs)
-	lastOctets := wg.GetLastOctetList(usedIPs)
-	fmt.Println(lastOctets)
-	config, _ := conf.GetOktaServerConfig()
-	oh := okta.OktaHandler{Conf: config}
-	oh.GetUsers()
+	_,wgNet,_ := internal.GetWgCIDR()
+	if err := internal.CreateDBSchema(); err != nil {
+		log.Println("Error creating db schema ", err)
+	}
+	usedIPs := internal.GetUsedIPs()
+	nextIp, err := internal.GetNextIp(wgNet,usedIPs)
+	if err != nil {
+		fmt.Println("Error fetching next ip ",err)
+	}
+	fmt.Println(nextIp)
+
+	//config, _ := conf.GetOktaServerConfig()
+	//oh := internal.OktaHandler{Conf: config}
+	//oh.GetUsers()
 }
 
 

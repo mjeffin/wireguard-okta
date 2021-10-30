@@ -1,4 +1,5 @@
-package okta
+package internal
+
 
 import (
 	"context"
