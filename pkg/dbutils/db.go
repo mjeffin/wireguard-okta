@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	_ "github.com/mattn/go-sqlite3"
 	"log"
-	"net"
 )
 
 const (
@@ -30,9 +29,10 @@ func CreateSchema()  {
 	}
 }
 
-// GetUsedIps returns the list of ip addresses currently being in use.
+// GetUsedIPs returns the list of ip addresses as strings currently being in use.
 // This is called when adding a new user to find the next available ip to be allocated
-func GetUsedIps() []net.IP {
+// They are returned as strings so that the last octat could be easily removed
+func GetUsedIPs() []string{
 	db, err := sql.Open("sqlite3", DBFILE)
 	if err != nil {
 		log.Println("Error opening DB", err)
@@ -44,17 +44,14 @@ func GetUsedIps() []net.IP {
 	if err != nil {
 		log.Println("Unable to query from db")
 	}
-	var ipList []net.IP
+	var ipList []string
 	for rows.Next() {
 		var i string
 		err = rows.Scan(&i)
 		if err != nil {
 			log.Println("Error scanning result to string")
 		}
-		ip := net.ParseIP(i)
-		if ip != nil {
-			ipList = append(ipList,ip)
-		}
+		ipList = append(ipList, i)
 	}
 	err = rows.Err()
 	if err != nil {

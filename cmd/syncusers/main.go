@@ -10,10 +10,12 @@ import (
 
 func main()  {
 	conf.LoadEnvFile()
+	//wg.GetWgCIDR()
 	dbutils.CreateSchema()
-	usedIps := dbutils.GetUsedIps()
-	fmt.Println(usedIps)
-	wg.GetWgCIDR()
+	usedIPs := dbutils.GetUsedIPs()
+	fmt.Println(usedIPs)
+	lastOctets := wg.GetLastOctetList(usedIPs)
+	fmt.Println(lastOctets)
 	config, _ := conf.GetOktaServerConfig()
 	oh := okta.OktaHandler{Conf: config}
 	oh.GetUsers()
