@@ -9,10 +9,6 @@ import (
 	"mjeffn/wireguard-okta/pkg/conf"
 )
 
-type OktaHandler struct {
-	Conf conf.OktaServerConfig
-}
-
 type userProfile struct {
 	Email string `json:"email"`
 }
@@ -21,14 +17,18 @@ type userProfile struct {
 // TODO - check about okta pagination and the default number of users in one response.
 // uses json marshaling and unmarshalling to extract the emails from user profiles which is map[string]interface{}.
 // not sure if it's the best way, but it gets the job done.
-func (oh OktaHandler) GetAllowedUsers() ([]string, error) {
+func GetAllowedUsers() ([]string, error) {
+	config, err := conf.GetOktaServerConfig()
+	if err != nil {
+		log.Println("Error fetching okta config")
+	}
 	ctx, client, err := okta.NewClient(context.Background(),
-		okta.WithOrgUrl(oh.Conf.OrgUrl), okta.WithToken(oh.Conf.ApiToken))
+		okta.WithOrgUrl(config.OrgUrl), okta.WithToken(config.ApiToken))
 	if err != nil {
 		log.Println(err)
 		return nil, errors.New("error initiating okta handler")
 	}
-	users, _, err := client.Group.ListGroupUsers(ctx, oh.Conf.WireguardGroupId, nil)
+	users, _, err := client.Group.ListGroupUsers(ctx, config.WireguardGroupId, nil)
 	if err != nil {
 		log.Println(err)
 		return nil, errors.New("error fetching users of given group from okta")

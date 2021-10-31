@@ -8,29 +8,28 @@ import (
 )
 
 func main() {
-	conf.LoadEnvFile() // load .env file
-	// get the list of allowed users from okta
-	config, err := conf.GetOktaServerConfig()
-	if err != nil {
-		log.Println("Error fetching okta config")
-	}
-	oh := internal.OktaHandler{Conf: config}
-	userEmails, err := oh.GetAllowedUsers()
+	conf.LoadEnvFile()                              // load .env file
+	allowedUsers, err := internal.GetAllowedUsers() // from okta
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(userEmails)
-	// get the list of active users from okta
+	// create the db if it's a new deployment
 	if err := internal.CreateDBSchema(); err != nil {
 		log.Println("Error creating db schema ", err)
 	}
-	// compare both lists
-	_, wgNet, _ := internal.GetWgCIDR()
-	usedIPs, err := internal.GetActiveIPs()
-	nextIp, err := internal.GetNextIp(wgNet, usedIPs)
+	activeUsers, err := internal.GetActiveUsers() // from db. db and wg conf are in sync
 	if err != nil {
-		fmt.Println("Error fetching next ip ", err)
+		log.Println(err)
 	}
-	fmt.Println(nextIp)
+	usersToAdd, usersToRemove := internal.CompareUsers(allowedUsers, activeUsers)
+	log.Printf("Users to add - %s\n", usersToAdd)
+	log.Printf("Users to remove - %s\n", usersToRemove)
+	//_, wgNet, _ := internal.GetWgCIDR()
+	//usedIPs, err := internal.GetActiveIPs()
+	//nextIp, err := internal.GetNextIp(wgNet, usedIPs)
+	//if err != nil {
+	//	log.Println("Error fetching next ip ", err)
+	//}
+	//log.Println(nextIp)
 
 }
