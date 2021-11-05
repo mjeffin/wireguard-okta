@@ -28,3 +28,13 @@ func CompareUsers(allowedUsers []string, activeUsers []string) ([]string, []stri
 	}
 	return usersToAdd, usersToRemove
 }
+
+//AddUsers function is the entry point to add new users to wireguard and db
+func AddUsers(users []string) error  {
+	return nil
+}
+
+// RemoveUsers removes the users from wireguard config and db
+func RemoveUsers(users []string) error {
+	return nil
+}
