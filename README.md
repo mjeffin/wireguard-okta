@@ -1,40 +1,56 @@
 # Wireguard Okta
 
-[Wireguard](https://www.wireguard.com/) is an extremely fast, secure and modern VPN solution. It is mow included in linux kernel
-and is used by VPN providers like mozilla vpn and mullad. Wireguard follows the linux philosphy of doing one thing well. It deals with 
+[Wireguard](https://www.wireguard.com/) is an extremely fast, secure and modern VPN solution. It is now included in linux kernel
+and is used by VPN providers like mozilla vpn and mullad. Wireguard follows the linux philosophy of doing one thing well. It deals with 
 cryptography and network routing and doesn't handle identity management. It explicitly leaves identity management to application layer.
 
-One major deterrent of wireguard adoption by enterprises is lack of 2FA. There are awesome products like [tailscale](https://tailscale.com/) 
-offers a zero config VPN solution built on top of wireguard. They even have open sourced their [client code](https://github.com/tailscale/tailscale).
-It is great for creating islands of intranet within your corporate network and is a good option for large enterprises. Becuase it does so many 
-things, it might take some time for a network admin to know what actually goes under the hood. 
+One major deterrent for wireguard adoption by enterprises is lack of 2FA. There are awesome products like [tailscale](https://tailscale.com/), which
+offers a zero config VPN solution built on top of wireguard. They even have open sourced their [code](https://github.com/tailscale/tailscale).
+You could creat islands of intranet within your corporate network and is a great option for large enterprises. 
 
-The easiest way to install wireguard is using [algo](https://github.com/trailofbits/algo), a set of Ansible scripts that simplify the setup of a 
-personal WireGuard and IPsec VPN. It's a great and simple way to setup wireguard for a number of users, but the only trouble is key rotation and lack 
-of 2FA. 
+The aim of this project is to explore wireguard in detail and create a simple system to link wireguard and okta together.
+Once okta is integrated, other OIDC providers will be integrated in a generic way and will be exposed as a go package. 
 
-This project is aimed at provisioning and key management for enterprises simple and tied to their Identity provider system. 
-Okta will be integrated first and the learnings from builing that will be used to create a generic system with integration to multiple OIDC providers. 
+# High Level Objectives
 
-
-# High Level Requirements
-
-- Periodically sync wireguard peers and okta users, using either
+## Phase 1
+- Periodically sync okta users and wireguard peers and add/delete peers as needed, using either
   - event webhooks
-  - cronjobs
-- Provide means to authenticate via okta and download the new certificate once every day for users
+  - cronjob
 
-Both webhooks and cronjobs have their prons and cons. Cronjobs have a lesser attach surface and is more robust. Hence we'll use
-that approach first. 
+Webhooks are more efficient but cron have lesser attack surface and is more robust. Hence, we'll use cron first.
+
+## Phase 2
+- Figure out a way to do key rotation and provide means for users to download new keys after they authenticate with okta 2FA
 
 # Configuration 
 
-Configurations 
+Configuration settings required by the project so far. Subject to change
+
+```shell
+OKTASERVER_API_TOKEN=
+OKTASERVER_WIREGUARD_GROUP_ID=
+OKTASERVER_ORG_URL=
+WG_INTERFACE_IP=10.49.0.1/24
+ALLOWED_IPS=10.0.0.0/8
+```
+
+# Libraries Used
+
+- [wgctrl-go](https://github.com/WireGuard/wgctrl-go)  - Package wgctrl enables control of WireGuard interfaces on multiple platforms.
+- [wireguard-go](https://github.com/WireGuard/wireguard-go) - Go implementation of wireguard protocol. Used by wgctrl-go internally
+- [go-sqlite3](github.com/mattn/go-sqlite3 ) 
 
 # Inspirations
 
 Would like to thank contributors of below open source projects, who has travelled before me in this path
 
-- [wireguard-go](https://github.com/WireGuard/wireguard-go)
-- [tailscale](https://tailscale.com/) 
+- [tailscale](https://tailscale.com/)
 - [wired-vpn](https://github.com/jbauers/wired-vpn)
+
+# Progress so far
+ - [x] Creation of wireguard client programmatically in the server using wgctrl-go package
+ - [x] Fetching of users in okta and comparison of that list to the list of users in the sqlite db
+
+# Next Steps
+- [ ] Save peer configuration as text file, to share with user 
