@@ -6,10 +6,13 @@ cryptography and network routing and doesn't handle identity management. It expl
 
 One major deterrent for wireguard adoption by enterprises is lack of 2FA. There are awesome products like [tailscale](https://tailscale.com/), which
 offers a zero config VPN solution built on top of wireguard. They even have open sourced their [code](https://github.com/tailscale/tailscale).
-You could creat islands of intranet within your corporate network and is a great option for large enterprises. 
+You could create islands of intranets within your corporate network and is a great option for large enterprises. 
 
 The aim of this project is to explore wireguard in detail and create a simple system to link wireguard and okta together.
-Once okta is integrated, other OIDC providers will be integrated in a generic way and will be exposed as a go package. 
+Small companies who are already using wireguard either manually or via [algo](https://github.com/trailofbits/algo) might find this useful
+as an added security measure. 
+
+Once okta is integrated, other OIDC providers will be integrated in a generic way and will be exposed as a go package in a new project. 
 
 # High Level Objectives
 
